@@ -245,22 +245,7 @@ public class NessusXMLParser {
 			throw new Exception(uri + " is not a cpe URI");
 		}
 		
-		//Find the product type
-		/* Not really useful
-		switch(features[1].charAt(1)) {
-		case 'a':
-			res+="SW:";
-			break;
-		case 'o':
-			res+="OS:";
-			break;
-		case 'h':
-			res+="HW:";
-			break;
-		}
-		*/
-		
-		res = /*res + features[2] + " "+ */features[3];
+		res = features[3];
 		
 		return res;
 	}

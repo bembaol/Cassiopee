@@ -52,22 +52,6 @@ public class GetTplQry_nessusXML {
 		}
 	}
 
-	public static Connection getConnection() throws SQLException,
-	java.lang.ClassNotFoundException, IOException {
-		Class.forName("com.mysql.cj.jdbc.Driver");
-		String url="";
-		String userName="";
-		String password="";
-		File f = new File("config.txt");
-		String path = f.getPath();
-		BufferedReader breader= new BufferedReader(new FileReader(path));
-		url=breader.readLine();
-		userName=breader.readLine();
-		password=breader.readLine();
-		Connection con = DriverManager.getConnection(url, userName, password);
-		return con;	
-	}
-
 	public static void writeAccount(ArrayList<String> hosts) {
     	try {
     		String victim = "";
