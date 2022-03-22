@@ -7,6 +7,9 @@ Lien vers le projet Mulval: https://github.com/risksense/mulval
 Dans ce dépôt vont se trouver des programmes venant du dépôt Mulval ci-dessus et qui ont été modifiés.
 
 Pour traduire un scan Nessus en graphe d'attaque:
+
 $ mulval/utils/nessus_translate.sh <xml_nessus>
+
 --> Cela va notamment générer un fichier nessus.P qu'il faut utiliser comme input pour mulval:
+
 $ mulval/utils/graph_gen.sh nessus.P
