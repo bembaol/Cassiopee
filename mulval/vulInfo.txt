@@ -1,0 +1,20 @@
+157.159.68.125
+CVE-1999-0524
+{severity=0.0, lose_types='no_loss', access=l, range='localExploit'}
+0
+icmp
+157.159.68.97
+CVE-1999-0524
+{severity=0.0, lose_types='no_loss', access=l, range='localExploit'}
+0
+icmp
+157.159.68.75
+CVE-1999-0524
+{severity=0.0, lose_types='no_loss', access=l, range='localExploit'}
+0
+icmp
+157.159.68.44
+CVE-1999-0524
+{severity=0.0, lose_types='no_loss', access=l, range='localExploit'}
+0
+icmp

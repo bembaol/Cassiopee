@@ -1,0 +1,4 @@
+inCompetent('127.0.0.1_victim').
+hasAccount('127.0.0.1_victim', '127.0.0.1', user).
+attackerLocated(internet).
+attackGoal(execCode('127.0.0.1', _)).

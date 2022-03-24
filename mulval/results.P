@@ -1,0 +1,9 @@
+vuln_exists('127.0.0.1','CVE-2015-4000','[openssl]',[''remoteExploit''],[''data_modification''],'3.7','h','44215','tcp').
+vuln_exists('127.0.0.1','CVE-2004-2761','[md5; x.509_certificate]',[''remoteExploit''],[''data_modification''],'7.5','l','44215','tcp').
+vuln_exists('127.0.0.1','CVE-2003-1567','no_products',[''remoteExploit''],[''data_loss''],'5.3','l','44215','tcp').
+vuln_exists('127.0.0.1','CVE-2004-2320','no_products',[''remoteExploit''],[''data_loss''],'5.3','l','44215','tcp').
+vuln_exists('127.0.0.1','CVE-2010-0386','no_products',[''remoteExploit''],[''data_loss''],'5.3','l','44215','tcp').
+vuln_exists('127.0.0.1','CVE-2003-1567','no_products',[''remoteExploit''],[''data_loss''],'5.3','l','40665','tcp').
+vuln_exists('127.0.0.1','CVE-2004-2320','no_products',[''remoteExploit''],[''data_loss''],'5.3','l','40665','tcp').
+vuln_exists('127.0.0.1','CVE-2010-0386','no_products',[''remoteExploit''],[''data_loss''],'5.3','l','40665','tcp').
+vuln_exists(null,null,null,null,null,null,null).

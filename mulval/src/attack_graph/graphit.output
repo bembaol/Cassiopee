@@ -1,0 +1,1009 @@
+Grammaire
+
+    0 $accept: lines $end
+
+    1 lines: %empty
+    2      | lines line
+
+    3 line: blank_line
+    4     | trace_step
+    5     | attack_fact
+    6     | predicate_type
+    7     | fact_metric
+
+    8 blank_line: END_LINE
+    9           | SP END_LINE
+
+   10 predicate_type: PRIMITIVE '(' ATOM ',' ATOM ')' '.' END_LINE
+   11               | DERIVED '(' ATOM ',' ATOM ')' '.' END_LINE
+   12               | META '(' ATOM ',' ATOM ')' '.' END_LINE
+
+   13 fact_metric: METRIC '(' fact ',' metric ')' '.' END_LINE
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+   15 metric: ATOM
+   16       | FLOAT
+   17       | cvss_metric
+   18       | cap_metric
+
+   19 cvss_metric: CVSS_AC '(' ATOM ')'
+
+   20 cap_metric: CAP_LUCK '(' ATOM ')'
+
+   21 attack_fact: ATTACK_TOKEN '(' fact ')' '.' END_LINE
+
+   22 special_char: SP
+   23             | '('
+   24             | ')'
+   25             | '['
+   26             | ']'
+
+   27 quoted_name: ATOM
+   28            | quoted_name ATOM
+   29            | quoted_name special_char
+
+   30 desc: %empty
+   31     | ATOM
+   32     | desc SP ATOM
+
+   33 arglist: factString
+   34        | arglist ',' factString
+
+   35 factString: ATOM
+   36           | QUOTE quoted_name QUOTE
+
+   37 facts: %empty
+   38      | fact
+   39      | facts ',' fact
+
+   40 fact: ATOM '(' arglist ')'
+
+   41 conjunct: '[' facts ']'
+
+
+Terminaux, suivis des règles où ils apparaissent
+
+    $end (0) 0
+    '(' (40) 10 11 12 13 14 19 20 21 23 40
+    ')' (41) 10 11 12 13 14 19 20 21 24 40
+    ',' (44) 10 11 12 13 14 34 39
+    '.' (46) 10 11 12 13 14 21
+    '[' (91) 25 41
+    ']' (93) 26 41
+    error (256)
+    ATTACK_TOKEN (258) 21
+    TRACESTEP_TOKEN (259) 14
+    BECAUSE_TOKEN (260) 14
+    ATOM (261) 10 11 12 14 15 19 20 27 28 31 32 35 40
+    QUOTE (262) 14 36
+    SP (263) 9 22 32
+    END_LINE (264) 8 9 10 11 12 13 14 21
+    PRIMITIVE (265) 10
+    DERIVED (266) 11
+    META (267) 12
+    METRIC (268) 13
+    DESC (269) 14
+    FLOAT (270) 16
+    CVSS_AC (271) 19
+    CAP_LUCK (272) 20
+
+
+Non-terminaux, suivis des règles où ils apparaissent
+
+    $accept (24)
+        à gauche: 0
+    lines (25)
+        à gauche: 1 2
+        à droite: 0 2
+    line (26)
+        à gauche: 3 4 5 6 7
+        à droite: 2
+    blank_line (27)
+        à gauche: 8 9
+        à droite: 3
+    predicate_type (28)
+        à gauche: 10 11 12
+        à droite: 6
+    fact_metric (29)
+        à gauche: 13
+        à droite: 7
+    trace_step (30)
+        à gauche: 14
+        à droite: 4
+    metric (31)
+        à gauche: 15 16 17 18
+        à droite: 13 14
+    cvss_metric (32)
+        à gauche: 19
+        à droite: 17
+    cap_metric (33)
+        à gauche: 20
+        à droite: 18
+    attack_fact (34)
+        à gauche: 21
+        à droite: 5
+    special_char (35)
+        à gauche: 22 23 24 25 26
+        à droite: 29
+    quoted_name (36)
+        à gauche: 27 28 29
+        à droite: 28 29 36
+    desc (37)
+        à gauche: 30 31 32
+        à droite: 14 32
+    arglist (38)
+        à gauche: 33 34
+        à droite: 34 40
+    factString (39)
+        à gauche: 35 36
+        à droite: 33 34
+    facts (40)
+        à gauche: 37 38 39
+        à droite: 39 41
+    fact (41)
+        à gauche: 40
+        à droite: 13 14 21 38 39
+    conjunct (42)
+        à gauche: 41
+        à droite: 14
+
+
+État 0
+
+    0 $accept: . lines $end
+
+    $défaut  réduction par utilisation de la règle 1 (lines)
+
+    lines  aller à l'état 1
+
+
+État 1
+
+    0 $accept: lines . $end
+    2 lines: lines . line
+
+    $end             décalage et aller à l'état 2
+    ATTACK_TOKEN     décalage et aller à l'état 3
+    TRACESTEP_TOKEN  décalage et aller à l'état 4
+    SP               décalage et aller à l'état 5
+    END_LINE         décalage et aller à l'état 6
+    PRIMITIVE        décalage et aller à l'état 7
+    DERIVED          décalage et aller à l'état 8
+    META             décalage et aller à l'état 9
+    METRIC           décalage et aller à l'état 10
+
+    line            aller à l'état 11
+    blank_line      aller à l'état 12
+    predicate_type  aller à l'état 13
+    fact_metric     aller à l'état 14
+    trace_step      aller à l'état 15
+    attack_fact     aller à l'état 16
+
+
+État 2
+
+    0 $accept: lines $end .
+
+    $défaut  accepter
+
+
+État 3
+
+   21 attack_fact: ATTACK_TOKEN . '(' fact ')' '.' END_LINE
+
+    '('  décalage et aller à l'état 17
+
+
+État 4
+
+   14 trace_step: TRACESTEP_TOKEN . '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    '('  décalage et aller à l'état 18
+
+
+État 5
+
+    9 blank_line: SP . END_LINE
+
+    END_LINE  décalage et aller à l'état 19
+
+
+État 6
+
+    8 blank_line: END_LINE .
+
+    $défaut  réduction par utilisation de la règle 8 (blank_line)
+
+
+État 7
+
+   10 predicate_type: PRIMITIVE . '(' ATOM ',' ATOM ')' '.' END_LINE
+
+    '('  décalage et aller à l'état 20
+
+
+État 8
+
+   11 predicate_type: DERIVED . '(' ATOM ',' ATOM ')' '.' END_LINE
+
+    '('  décalage et aller à l'état 21
+
+
+État 9
+
+   12 predicate_type: META . '(' ATOM ',' ATOM ')' '.' END_LINE
+
+    '('  décalage et aller à l'état 22
+
+
+État 10
+
+   13 fact_metric: METRIC . '(' fact ',' metric ')' '.' END_LINE
+
+    '('  décalage et aller à l'état 23
+
+
+État 11
+
+    2 lines: lines line .
+
+    $défaut  réduction par utilisation de la règle 2 (lines)
+
+
+État 12
+
+    3 line: blank_line .
+
+    $défaut  réduction par utilisation de la règle 3 (line)
+
+
+État 13
+
+    6 line: predicate_type .
+
+    $défaut  réduction par utilisation de la règle 6 (line)
+
+
+État 14
+
+    7 line: fact_metric .
+
+    $défaut  réduction par utilisation de la règle 7 (line)
+
+
+État 15
+
+    4 line: trace_step .
+
+    $défaut  réduction par utilisation de la règle 4 (line)
+
+
+État 16
+
+    5 line: attack_fact .
+
+    $défaut  réduction par utilisation de la règle 5 (line)
+
+
+État 17
+
+   21 attack_fact: ATTACK_TOKEN '(' . fact ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 24
+
+    fact  aller à l'état 25
+
+
+État 18
+
+   14 trace_step: TRACESTEP_TOKEN '(' . BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    BECAUSE_TOKEN  décalage et aller à l'état 26
+
+
+État 19
+
+    9 blank_line: SP END_LINE .
+
+    $défaut  réduction par utilisation de la règle 9 (blank_line)
+
+
+État 20
+
+   10 predicate_type: PRIMITIVE '(' . ATOM ',' ATOM ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 27
+
+
+État 21
+
+   11 predicate_type: DERIVED '(' . ATOM ',' ATOM ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 28
+
+
+État 22
+
+   12 predicate_type: META '(' . ATOM ',' ATOM ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 29
+
+
+État 23
+
+   13 fact_metric: METRIC '(' . fact ',' metric ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 24
+
+    fact  aller à l'état 30
+
+
+État 24
+
+   40 fact: ATOM . '(' arglist ')'
+
+    '('  décalage et aller à l'état 31
+
+
+État 25
+
+   21 attack_fact: ATTACK_TOKEN '(' fact . ')' '.' END_LINE
+
+    ')'  décalage et aller à l'état 32
+
+
+État 26
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN . '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    '('  décalage et aller à l'état 33
+
+
+État 27
+
+   10 predicate_type: PRIMITIVE '(' ATOM . ',' ATOM ')' '.' END_LINE
+
+    ','  décalage et aller à l'état 34
+
+
+État 28
+
+   11 predicate_type: DERIVED '(' ATOM . ',' ATOM ')' '.' END_LINE
+
+    ','  décalage et aller à l'état 35
+
+
+État 29
+
+   12 predicate_type: META '(' ATOM . ',' ATOM ')' '.' END_LINE
+
+    ','  décalage et aller à l'état 36
+
+
+État 30
+
+   13 fact_metric: METRIC '(' fact . ',' metric ')' '.' END_LINE
+
+    ','  décalage et aller à l'état 37
+
+
+État 31
+
+   40 fact: ATOM '(' . arglist ')'
+
+    ATOM   décalage et aller à l'état 38
+    QUOTE  décalage et aller à l'état 39
+
+    arglist     aller à l'état 40
+    factString  aller à l'état 41
+
+
+État 32
+
+   21 attack_fact: ATTACK_TOKEN '(' fact ')' . '.' END_LINE
+
+    '.'  décalage et aller à l'état 42
+
+
+État 33
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' . ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 43
+
+
+État 34
+
+   10 predicate_type: PRIMITIVE '(' ATOM ',' . ATOM ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 44
+
+
+État 35
+
+   11 predicate_type: DERIVED '(' ATOM ',' . ATOM ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 45
+
+
+État 36
+
+   12 predicate_type: META '(' ATOM ',' . ATOM ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 46
+
+
+État 37
+
+   13 fact_metric: METRIC '(' fact ',' . metric ')' '.' END_LINE
+
+    ATOM      décalage et aller à l'état 47
+    FLOAT     décalage et aller à l'état 48
+    CVSS_AC   décalage et aller à l'état 49
+    CAP_LUCK  décalage et aller à l'état 50
+
+    metric       aller à l'état 51
+    cvss_metric  aller à l'état 52
+    cap_metric   aller à l'état 53
+
+
+État 38
+
+   35 factString: ATOM .
+
+    $défaut  réduction par utilisation de la règle 35 (factString)
+
+
+État 39
+
+   36 factString: QUOTE . quoted_name QUOTE
+
+    ATOM  décalage et aller à l'état 54
+
+    quoted_name  aller à l'état 55
+
+
+État 40
+
+   34 arglist: arglist . ',' factString
+   40 fact: ATOM '(' arglist . ')'
+
+    ','  décalage et aller à l'état 56
+    ')'  décalage et aller à l'état 57
+
+
+État 41
+
+   33 arglist: factString .
+
+    $défaut  réduction par utilisation de la règle 33 (arglist)
+
+
+État 42
+
+   21 attack_fact: ATTACK_TOKEN '(' fact ')' '.' . END_LINE
+
+    END_LINE  décalage et aller à l'état 58
+
+
+État 43
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM . ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    ','  décalage et aller à l'état 59
+
+
+État 44
+
+   10 predicate_type: PRIMITIVE '(' ATOM ',' ATOM . ')' '.' END_LINE
+
+    ')'  décalage et aller à l'état 60
+
+
+État 45
+
+   11 predicate_type: DERIVED '(' ATOM ',' ATOM . ')' '.' END_LINE
+
+    ')'  décalage et aller à l'état 61
+
+
+État 46
+
+   12 predicate_type: META '(' ATOM ',' ATOM . ')' '.' END_LINE
+
+    ')'  décalage et aller à l'état 62
+
+
+État 47
+
+   15 metric: ATOM .
+
+    $défaut  réduction par utilisation de la règle 15 (metric)
+
+
+État 48
+
+   16 metric: FLOAT .
+
+    $défaut  réduction par utilisation de la règle 16 (metric)
+
+
+État 49
+
+   19 cvss_metric: CVSS_AC . '(' ATOM ')'
+
+    '('  décalage et aller à l'état 63
+
+
+État 50
+
+   20 cap_metric: CAP_LUCK . '(' ATOM ')'
+
+    '('  décalage et aller à l'état 64
+
+
+État 51
+
+   13 fact_metric: METRIC '(' fact ',' metric . ')' '.' END_LINE
+
+    ')'  décalage et aller à l'état 65
+
+
+État 52
+
+   17 metric: cvss_metric .
+
+    $défaut  réduction par utilisation de la règle 17 (metric)
+
+
+État 53
+
+   18 metric: cap_metric .
+
+    $défaut  réduction par utilisation de la règle 18 (metric)
+
+
+État 54
+
+   27 quoted_name: ATOM .
+
+    $défaut  réduction par utilisation de la règle 27 (quoted_name)
+
+
+État 55
+
+   28 quoted_name: quoted_name . ATOM
+   29            | quoted_name . special_char
+   36 factString: QUOTE quoted_name . QUOTE
+
+    ATOM   décalage et aller à l'état 66
+    QUOTE  décalage et aller à l'état 67
+    SP     décalage et aller à l'état 68
+    '('    décalage et aller à l'état 69
+    ')'    décalage et aller à l'état 70
+    '['    décalage et aller à l'état 71
+    ']'    décalage et aller à l'état 72
+
+    special_char  aller à l'état 73
+
+
+État 56
+
+   34 arglist: arglist ',' . factString
+
+    ATOM   décalage et aller à l'état 38
+    QUOTE  décalage et aller à l'état 39
+
+    factString  aller à l'état 74
+
+
+État 57
+
+   40 fact: ATOM '(' arglist ')' .
+
+    $défaut  réduction par utilisation de la règle 40 (fact)
+
+
+État 58
+
+   21 attack_fact: ATTACK_TOKEN '(' fact ')' '.' END_LINE .
+
+    $défaut  réduction par utilisation de la règle 21 (attack_fact)
+
+
+État 59
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' . DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    DESC  décalage et aller à l'état 75
+
+
+État 60
+
+   10 predicate_type: PRIMITIVE '(' ATOM ',' ATOM ')' . '.' END_LINE
+
+    '.'  décalage et aller à l'état 76
+
+
+État 61
+
+   11 predicate_type: DERIVED '(' ATOM ',' ATOM ')' . '.' END_LINE
+
+    '.'  décalage et aller à l'état 77
+
+
+État 62
+
+   12 predicate_type: META '(' ATOM ',' ATOM ')' . '.' END_LINE
+
+    '.'  décalage et aller à l'état 78
+
+
+État 63
+
+   19 cvss_metric: CVSS_AC '(' . ATOM ')'
+
+    ATOM  décalage et aller à l'état 79
+
+
+État 64
+
+   20 cap_metric: CAP_LUCK '(' . ATOM ')'
+
+    ATOM  décalage et aller à l'état 80
+
+
+État 65
+
+   13 fact_metric: METRIC '(' fact ',' metric ')' . '.' END_LINE
+
+    '.'  décalage et aller à l'état 81
+
+
+État 66
+
+   28 quoted_name: quoted_name ATOM .
+
+    $défaut  réduction par utilisation de la règle 28 (quoted_name)
+
+
+État 67
+
+   36 factString: QUOTE quoted_name QUOTE .
+
+    $défaut  réduction par utilisation de la règle 36 (factString)
+
+
+État 68
+
+   22 special_char: SP .
+
+    $défaut  réduction par utilisation de la règle 22 (special_char)
+
+
+État 69
+
+   23 special_char: '(' .
+
+    $défaut  réduction par utilisation de la règle 23 (special_char)
+
+
+État 70
+
+   24 special_char: ')' .
+
+    $défaut  réduction par utilisation de la règle 24 (special_char)
+
+
+État 71
+
+   25 special_char: '[' .
+
+    $défaut  réduction par utilisation de la règle 25 (special_char)
+
+
+État 72
+
+   26 special_char: ']' .
+
+    $défaut  réduction par utilisation de la règle 26 (special_char)
+
+
+État 73
+
+   29 quoted_name: quoted_name special_char .
+
+    $défaut  réduction par utilisation de la règle 29 (quoted_name)
+
+
+État 74
+
+   34 arglist: arglist ',' factString .
+
+    $défaut  réduction par utilisation de la règle 34 (arglist)
+
+
+État 75
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC . '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    '('  décalage et aller à l'état 82
+
+
+État 76
+
+   10 predicate_type: PRIMITIVE '(' ATOM ',' ATOM ')' '.' . END_LINE
+
+    END_LINE  décalage et aller à l'état 83
+
+
+État 77
+
+   11 predicate_type: DERIVED '(' ATOM ',' ATOM ')' '.' . END_LINE
+
+    END_LINE  décalage et aller à l'état 84
+
+
+État 78
+
+   12 predicate_type: META '(' ATOM ',' ATOM ')' '.' . END_LINE
+
+    END_LINE  décalage et aller à l'état 85
+
+
+État 79
+
+   19 cvss_metric: CVSS_AC '(' ATOM . ')'
+
+    ')'  décalage et aller à l'état 86
+
+
+État 80
+
+   20 cap_metric: CAP_LUCK '(' ATOM . ')'
+
+    ')'  décalage et aller à l'état 87
+
+
+État 81
+
+   13 fact_metric: METRIC '(' fact ',' metric ')' '.' . END_LINE
+
+    END_LINE  décalage et aller à l'état 88
+
+
+État 82
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' . QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    QUOTE  décalage et aller à l'état 89
+
+
+État 83
+
+   10 predicate_type: PRIMITIVE '(' ATOM ',' ATOM ')' '.' END_LINE .
+
+    $défaut  réduction par utilisation de la règle 10 (predicate_type)
+
+
+État 84
+
+   11 predicate_type: DERIVED '(' ATOM ',' ATOM ')' '.' END_LINE .
+
+    $défaut  réduction par utilisation de la règle 11 (predicate_type)
+
+
+État 85
+
+   12 predicate_type: META '(' ATOM ',' ATOM ')' '.' END_LINE .
+
+    $défaut  réduction par utilisation de la règle 12 (predicate_type)
+
+
+État 86
+
+   19 cvss_metric: CVSS_AC '(' ATOM ')' .
+
+    $défaut  réduction par utilisation de la règle 19 (cvss_metric)
+
+
+État 87
+
+   20 cap_metric: CAP_LUCK '(' ATOM ')' .
+
+    $défaut  réduction par utilisation de la règle 20 (cap_metric)
+
+
+État 88
+
+   13 fact_metric: METRIC '(' fact ',' metric ')' '.' END_LINE .
+
+    $défaut  réduction par utilisation de la règle 13 (fact_metric)
+
+
+État 89
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE . desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 90
+
+    $défaut  réduction par utilisation de la règle 30 (desc)
+
+    desc  aller à l'état 91
+
+
+État 90
+
+   31 desc: ATOM .
+
+    $défaut  réduction par utilisation de la règle 31 (desc)
+
+
+État 91
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc . QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+   32 desc: desc . SP ATOM
+
+    QUOTE  décalage et aller à l'état 92
+    SP     décalage et aller à l'état 93
+
+
+État 92
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE . ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    ','  décalage et aller à l'état 94
+
+
+État 93
+
+   32 desc: desc SP . ATOM
+
+    ATOM  décalage et aller à l'état 95
+
+
+État 94
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' . metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    ATOM      décalage et aller à l'état 47
+    FLOAT     décalage et aller à l'état 48
+    CVSS_AC   décalage et aller à l'état 49
+    CAP_LUCK  décalage et aller à l'état 50
+
+    metric       aller à l'état 96
+    cvss_metric  aller à l'état 52
+    cap_metric   aller à l'état 53
+
+
+État 95
+
+   32 desc: desc SP ATOM .
+
+    $défaut  réduction par utilisation de la règle 32 (desc)
+
+
+État 96
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric . ')' ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    ')'  décalage et aller à l'état 97
+
+
+État 97
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' . ',' fact ',' conjunct ')' ')' '.' END_LINE
+
+    ','  décalage et aller à l'état 98
+
+
+État 98
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' . fact ',' conjunct ')' ')' '.' END_LINE
+
+    ATOM  décalage et aller à l'état 24
+
+    fact  aller à l'état 99
+
+
+État 99
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact . ',' conjunct ')' ')' '.' END_LINE
+
+    ','  décalage et aller à l'état 100
+
+
+État 100
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' . conjunct ')' ')' '.' END_LINE
+
+    '['  décalage et aller à l'état 101
+
+    conjunct  aller à l'état 102
+
+
+État 101
+
+   41 conjunct: '[' . facts ']'
+
+    ATOM  décalage et aller à l'état 24
+
+    $défaut  réduction par utilisation de la règle 37 (facts)
+
+    facts  aller à l'état 103
+    fact   aller à l'état 104
+
+
+État 102
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct . ')' ')' '.' END_LINE
+
+    ')'  décalage et aller à l'état 105
+
+
+État 103
+
+   39 facts: facts . ',' fact
+   41 conjunct: '[' facts . ']'
+
+    ','  décalage et aller à l'état 106
+    ']'  décalage et aller à l'état 107
+
+
+État 104
+
+   38 facts: fact .
+
+    $défaut  réduction par utilisation de la règle 38 (facts)
+
+
+État 105
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' . ')' '.' END_LINE
+
+    ')'  décalage et aller à l'état 108
+
+
+État 106
+
+   39 facts: facts ',' . fact
+
+    ATOM  décalage et aller à l'état 24
+
+    fact  aller à l'état 109
+
+
+État 107
+
+   41 conjunct: '[' facts ']' .
+
+    $défaut  réduction par utilisation de la règle 41 (conjunct)
+
+
+État 108
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' . '.' END_LINE
+
+    '.'  décalage et aller à l'état 110
+
+
+État 109
+
+   39 facts: facts ',' fact .
+
+    $défaut  réduction par utilisation de la règle 39 (facts)
+
+
+État 110
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' . END_LINE
+
+    END_LINE  décalage et aller à l'état 111
+
+
+État 111
+
+   14 trace_step: TRACESTEP_TOKEN '(' BECAUSE_TOKEN '(' ATOM ',' DESC '(' QUOTE desc QUOTE ',' metric ')' ',' fact ',' conjunct ')' ')' '.' END_LINE .
+
+    $défaut  réduction par utilisation de la règle 14 (trace_step)
