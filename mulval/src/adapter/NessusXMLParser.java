@@ -51,6 +51,9 @@ public class NessusXMLParser {
 				Iterator ei = host.elementIterator();
 				// Put all of the subelements' names(subelement of entry) to an array list(subele)
 				while (ei.hasNext()) {
+					// Va nous servir pour distinguer les cas où une vulnérabilité n'a pas d'ID CVE associé
+					boolean hasCve = false;
+					
 					Element sube = (Element) ei.next();
 					if(!sube.getName().equals("ReportItem"))
 						continue;
@@ -61,25 +64,41 @@ public class NessusXMLParser {
 						Element reportItemElement = (Element) reportItemItrt.next();
 						subele.add(reportItemElement.getName());
 					}
-					if(subele.size() == 0 || (!subele.contains("cve")))
+					Iterator itr;
+					if(subele.size() == 0 || (!subele.contains("cve") && !subele.contains("cvss3_vector")))
 						continue;
-					Iterator itr = sube.elementIterator("cve");
+					else if (!subele.contains("cve") && subele.contains("cvss3_vector")) {
+						itr = sube.elementIterator("cvss3_vector");
+					}
+					else {
+						itr= sube.elementIterator("cve");
+						hasCve = true;
+					}
 					while(itr.hasNext()) {
 						System.out.println("host name is: " + host.attribute(0).getText());
 						
 						//On ajoute Host
 						fr.write(host.attribute(0).getText() + "\n");
 						
-						Element cve = (Element) itr.next();
-						System.out.println(cve.getText());
-						
 						//On ajoute CVE
-						fr.write(cve.getText() + "\n");	
+						Element cve = null;
+						if (hasCve) {
+							cve = (Element) itr.next();
+							System.out.println(cve.getText());
+							fr.write(cve.getText() + "\n");
+						} else {
+							System.out.println("No CVE ID associated");
+							fr.write("CVE-XXXX-XXXX\n");
+						}
 						
 						//On récupère le vecteur CVSS 
 						Element cvss;
 						if (subele.contains("cvss3_vector")) {
-							cvss = (Element) sube.elementIterator("cvss3_vector").next();
+							if (hasCve) {
+								cvss = (Element) sube.elementIterator("cvss3_vector").next();
+							} else {
+								cvss = (Element) itr.next();
+							}
 						} else {
 							cvss = (Element) sube.elementIterator("cvss_vector").next();
 						}
@@ -180,7 +199,6 @@ public class NessusXMLParser {
 				lose_types += "'no_loss',";
 			}
 			int ltp = lose_types.length();
-			System.out.println(lose_types);
 			lose_types = lose_types.substring(0, ltp - 1);// delete the last comma
 			res.put("lose_types", lose_types);
 			
