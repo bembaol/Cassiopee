@@ -13,3 +13,5 @@ $ mulval/utils/nessus_translate.sh <xml_nessus>
 --> Cela va notamment générer un fichier nessus.P qu'il faut utiliser comme input pour mulval:
 
 $ mulval/utils/graph_gen.sh nessus.P
+
+Une fois le dépôt récupéré, il ne faut pas oublier de compiler les codes sources ! Il suffit de se placer dans le répertoire racine et d'exécuter make.
