@@ -25,20 +25,7 @@ if [ -z "$XSBHOME" ]; then
     exit -1
 fi
 
-#Inutile car nous n'allons plus chercher d'informations dans la bdd NVD
-#if [ ! -r config.txt ]; then
-#    echo "config.txt does not exist. Please refer to the README and create config.txt first."
-#    exit 1
-#fi
-
-#java -cp $CLASSPATH mysqlConnectionChecker
-
-#if [ -r connectionSucc.txt ]; then
-#    echo 'connection tested successfully'
-#else
-# echo 'connection cannot be established'
-#    exit 1
-#fi
+#J'ai enlevé tout le passage où on vérifie si la connexion à la bdd est établie car il est inutile puisque nous n'allons plus chercher d'informations dans la bdd NVD
 
 java -cp $CLASSPATH NessusXMLParser $1
 
@@ -48,7 +35,6 @@ else
     echo 'no vulnerability detected'
     exit 1
 fi
-
 
 java -cp $CLASSPATH GetTplQry_nessusXML vulInfo.txt
 
@@ -92,11 +78,9 @@ else
 	echo "Firewall rules provided."
 	cat $2 >> nessus.P
 fi
-#cat $ADAPTERSRCPATH/client_software.P>> nessus.P
+
 echo "Output can be found in nessus.P."
 
-#java -cp $CLASSPATH XMLConstructor
-#echo "An XML format of attackGraph could be found at XMLGraph.xml"
 # Perform summarization
 nessus_vul_summary.sh nessus.P
 cat accountinfo.P >>summ_nessus.P
@@ -106,5 +90,4 @@ if [ -z "$2" ]; then
 else
     cat $2 >> summ_nessus.P
 fi
-#cat $ADAPTERSRCPATH/client_software.P >> summ_nessus.P
 
