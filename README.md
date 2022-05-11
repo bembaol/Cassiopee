@@ -17,14 +17,17 @@ $ mulval/utils/graph_gen.sh nessus.P
 #### Modifications de la variable PATH
 
 --> Création de la variable d'environnement MULVALROOT
-export MULVALROOT=$HOME/Cassiopée/mulval
+export MULVALROOT=chemin/vers/le/dépôt/github/mulval		//Exemple : /home/bemba/Cours/Cassiopee/Cassiopee/mulval
 
---> Ajout de MULVALROOT/src à PATH (Ne pas oublier de créer le répertoire bin qui dontient 3 sous-répertoires: analyser, metrics et adapter)
-export PATH=$PATH:$MULVALROOT/bin
+--> Ajout des chemins utiles à la variable PATH
+export PATH=$PATH:$MULVALROOT/bin:$MULVALROOT/utils
 
---> Ajout de MULVALROOT/utils à PATH
-export PATH=$PATH:$MULVALROOT/utils
+#### Création des répertoires qui vont contenir les fichiers binaires
+$ mkdir bin/adapter && mkdir bin/metrics
 
-#### Remarque
+#### Compilation
 
-Une fois le dépôt récupéré, il ne faut pas oublier de compiler les codes sources ! Il suffit de se placer dans le répertoire racine et d'exécuter make.
+Une fois le dépôt récupéré, il ne faut pas oublier de compiler les codes sources ! Il suffit de se placer dans le répertoire racine et d'exécuter make. En cas d'échec de compilation:
+$ cd src/adapter && make && make install
+$ cd src/metrics && make && make install
+$ cd src/attack_graph && make && make install
