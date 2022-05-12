@@ -28,6 +28,9 @@ $ mkdir bin/adapter && mkdir bin/metrics
 #### Compilation
 
 Une fois le dépôt récupéré, il ne faut pas oublier de compiler les codes sources ! Il suffit de se placer dans le répertoire racine et d'exécuter make. En cas d'échec de compilation:
+
 $ cd src/adapter && make && make install
+
 $ cd src/metrics && make && make install
+
 $ cd src/attack_graph && make && make install
