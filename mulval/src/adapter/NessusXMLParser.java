@@ -17,8 +17,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -130,6 +129,15 @@ public class NessusXMLParser {
 							severity = (Element) sube.elementIterator("cvss_base_score").next();
 						}
 						vuln.put("severity", severity.getText());
+						
+						//On récupère la solution
+						String solution;
+						if (subele.contains("solution")) {
+							solution = sube.elementIterator("solution").next().getText();
+						} else {
+							solution = "no solution available";
+						}
+						//vuln.put("solution", solution);
 						
 						System.out.println(vuln.toString());
 						fr.write(vuln.toString() + "\n");
@@ -286,4 +294,101 @@ public class NessusXMLParser {
 		
 		return res;
 	}
+	
+	public static void XMLremediationConstructor(int nbOrganizations, List<HashMap<String,String>> Organizations, int nbEquipments, List<HashMap<String,String>> Equipments, List<HashMap<String,String>> Countermeasures, int nbIncidents, List<HashMap<String,String>> Incidents) {
+		String org_name = "";
+		String org_desc = "";
+		String id_equipments = "";
+		for (int i=1; i<=nbEquipments; i++) {
+			id_equipments += Integer.toString(i) + ", "; 
+		}
+		id_equipments = id_equipments.substring(0,id_equipments.length()-2); //On enlève le dernier espace et la virgule
+		
+		String eq_type = "";
+		
+		String cm_name = "";
+		String cm_desc = "";
+		
+		String inc_name = "";
+		String inc_desc = "";
+		String inc_risk_level = "";
+		String id_countermeasure = "";
+		for (int i=1; i<=nbEquipments+1; i++) {
+			id_countermeasure += Integer.toString(i) + ", "; 
+		}
+		id_countermeasure = id_countermeasure.substring(0,id_countermeasure.length()-2); //On enlève le dernier espace et la virgule
+		
+		try {
+			FileWriter fr = new FileWriter("Remediations.xml");
+			
+			//Racine du fichier
+			fr.write("<RORI>\n");
+			
+			// élément ORGANIZATIONS
+			fr.write("<ORGANIZATIONS>\n");
+			for (int i=0; i<nbOrganizations; i++) {
+				org_name = Organizations.get(i).get("name");
+				org_desc = Organizations.get(i).get("description");
+				fr.write("<organization id=\"" + Integer.toString(i+1) + "\" name=\"" + org_name + "\" description=\"" + org_desc + "\" id_equipments=\"" + id_equipments + "\" xpath=\"xpath\"/>\n");
+			}
+			fr.write("</ORGANIZATIONS>\n");
+			
+			// élément EQUIPMENTS
+			fr.write("<EQUIPMENTS>\n");
+			for (int i=0; i<nbEquipments; i++) {
+				eq_type = Equipments.get(i).get("type");
+				fr.write("<equipment id=\"" + Integer.toString(i+1) + "\" name=\"E" + Integer.toString(i+1) + "\" type=\"" + eq_type + "\" AEV=\"\" xpath=\"xpath\"/>\n");
+			}
+			fr.write("</EQUIPMENTS>\n");
+			
+			// élément COUNTERMEASURES 
+			fr.write("<COUNTERMEASURES>\n");
+			fr.write("<countermeasure id=\"1\" name=\"NOOP\" description=\"This Solution considers to accept the risk and does not require any modifications\" totally_restrictive=\"yes\" restriction=\"\" id_equipment=\"\" id_rm=\"1\" id_arc=\"1\" xpath=\"xpath\"/>\n");
+			for (int i=0; i<nbEquipments; i++) {
+				cm_name = Countermeasures.get(i).get("name");
+				cm_desc = Countermeasures.get(i).get("description");
+				fr.write("<countermeasure id=\"" + Integer.toString(i+2) + "\" name=\"" + cm_name + "\" description=\"" + cm_desc + "\" totally_restrictive=\"no\" restriction=\"1\" id_equipment=\"" + Integer.toString(i+1) + "\" id_rm=\"" + Integer.toString(i+2) + "\" id_arc=\"" + Integer.toString(i+2) + "\" xpath=\"xpath\"/>\n");
+			}
+			fr.write("</COUNTERMEASURES>\n");
+			
+			// élément RISK_MITIGATION
+			fr.write("<RISK_MITIGATION>\n");
+			for (int i=0; i<nbEquipments+1; i++) {
+				fr.write("<rm id=\"" + Integer.toString(i+1) + "\" EF=\"\" COV=\"\" RM=\"\" xpath=\"xpath\"/>\n");
+			}
+			fr.write("</RISK_MITIGATION>\n");
+			
+			// élément ANNUAL_RESPONSE_COST
+			fr.write("<ANNUAL_RESPONSE_COST>\n");
+			fr.write("<arc id=\"1\" COM=\"\" COI=\"\" ODC=\"\" IC=\"\" total=\"0\" xpath=\"xpath\"/>\n");
+			for (int i=0; i<nbEquipments; i++) {
+				fr.write("<arc id=\"" + Integer.toString(i+2) + "\" COM=\"\" COI=\"\" ODC=\"\" IC=\"\" total=\"\" xpath=\"xpath\"/>\n");
+			}
+			fr.write("</ANNUAL_RESPONSE_COST>\n");
+			
+			// élément INCIDENTS
+			fr.write("<INCIDENTS>\n");
+			for (int i=0; i<nbIncidents; i++) {
+				inc_name = Incidents.get(i).get("name");
+				inc_desc = Incidents.get(i).get("description");
+				inc_risk_level = Incidents.get(i).get("risk_level");
+				fr.write("<incident id=\"" + Integer.toString(i+1) + "\" name=\"" + inc_name + "\" description=\"" + inc_desc + "\" risk_level=\"" + inc_risk_level + "\" id_countermeasure=\"" + id_countermeasure + "\" id_organization=\"1\" id_ale=\"1\"/>\n");
+			}
+			fr.write("</INCIDENTS>\n");
+			
+			// élément ANNUAL_LOSS_EXPECTANCY 
+			fr.write("<ANNUAL_LOSS_EXPECTANCY>\n");
+			fr.write("<ale id=\"1\" LA=\"\" LD=\"\" LR=\"\" LP=\"\" LREC=\"\" LRPC=\"\" OL=\"\" CI=\"\" ARO=\"\" total=\"\"/>\n");
+			fr.write("</ANNUAL_LOSS_EXPECTANCY>\n");
+			
+			// fin du XML
+			fr.write("</RORI>\n");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+
 }
