@@ -22,6 +22,12 @@ export MULVALROOT=chemin/vers/le/dépôt/github/mulval		//Exemple : /home/bemba/
 --> Ajout des chemins utiles à la variable PATH
 export PATH=$PATH:$MULVALROOT/bin:$MULVALROOT/utils
 
+--> Création de la variable XSBHOME (logiciel indispensable à Mulval):
+export XSBHOME=/chemin/jusque/XSB-4-0-0/XSB
+
+--> Ajout de XSB/bin au path
+export PATH=$PATH:$XSBHOME/bin
+
 #### Création des répertoires qui vont contenir les fichiers binaires
 $ mkdir bin/adapter && mkdir bin/metrics
 
