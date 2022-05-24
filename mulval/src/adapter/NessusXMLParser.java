@@ -232,19 +232,6 @@ public class NessusXMLParser {
 				break;
 			}
 			
-			//Complexity vector
-			switch(metrics[1].charAt(3)) {
-			case 'L':
-				res.put("access", "l");
-				break;
-			case 'M':
-				res.put("access", "m");
-				break;
-			case 'H':
-				res.put("access", "h");
-				break;
-			}
-			
 			//lose_types
 			if(metrics[3].charAt(2)!='L') {
 				lose_types += "'data_loss',";
@@ -260,6 +247,19 @@ public class NessusXMLParser {
 			int ltp = lose_types.length();
 			lose_types = lose_types.substring(0, ltp - 1);// delete the last comma
 			res.put("lose_types", lose_types);
+			
+			//Complexity vector
+			switch(metrics[1].charAt(3)) {
+			case 'L':
+				res.put("access", "l");
+				break;
+			case 'M':
+				res.put("access", "m");
+				break;
+			case 'H':
+				res.put("access", "h");
+				break;
+			}
 			
 		} else {
 			throw new Exception(vector + " is not a CVSS vector");
