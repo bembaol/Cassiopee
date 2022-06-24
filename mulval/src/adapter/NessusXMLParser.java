@@ -109,7 +109,7 @@ public class NessusXMLParser {
 						} else {
 							cvss = (Element) sube.elementIterator("cvss_vector").next();
 						}
-						HashMap<String, String> vuln = parseCvss(cvss.getText());
+						HashMap<String, String> vuln = parseCvss(cvss.getText(),hasCve,cve.getText());
 						
 						//Get all vulnerable products
 						String products = "";
@@ -176,7 +176,7 @@ public class NessusXMLParser {
 		}
 	}
 	
-	public static HashMap<String,String> parseCvss(String vector) throws Exception {
+	public static HashMap<String,String> parseCvss(String vector,boolean hasCVE,String cve) throws Exception {
 		HashMap<String,String> res = new HashMap<>();
 		String[] metrics = vector.split("/");
 		String lose_types = "";
@@ -247,17 +247,31 @@ public class NessusXMLParser {
 			}
 			
 			//lose_types
-			if(metrics[3].charAt(2)!='L') {
-				lose_types += "'data_loss',";
-			}
-	
-			if(metrics[4].charAt(2)!='L') {
-				lose_types += "'data_modification',";
+			if (hasCVE) {
+				TechnicalImpact impact=new TechnicalImpact(cve);
+				if(impact.Consequencies.contains("Confidentiality")) {
+					lose_types += "'data_loss',";
+				}
+				if(impact.Consequencies.contains("Availability")) {
+					lose_types += "'availability_loss',";
+				}
+				if(impact.Consequencies.contains("Integrity")) {
+					lose_types += "'data_modification',";
+				}
+			} else {
+				if(metrics[3].charAt(2)!='L') {
+					lose_types += "'data_loss',";
+				}
+		
+				if(metrics[4].charAt(2)!='L') {
+					lose_types += "'data_modification',";
+				}
+				
+				if(metrics[5].charAt(2)!='L') {
+					lose_types += "'availability_loss',";
+				}
 			}
 			
-			if(metrics[5].charAt(2)!='L') {
-				lose_types += "'availability_loss',";
-			}
 			int ltp = lose_types.length();
 			lose_types = lose_types.substring(0, ltp - 1);// delete the last comma
 			res.put("lose_types", lose_types);
