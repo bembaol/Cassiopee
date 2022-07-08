@@ -34,16 +34,25 @@ public class TechnicalImpact {
 	int i=0;
 	int pos=0;
 	int previous_pos=0;
+	int pos2=0;
 	String res="";
-	String finder;
+	String finder,finder2;
 	List<String> CWEs = new ArrayList<>();
 	while (res!="No CWE") {
 		previous_pos=pos;
 		finder="\""+ "vuln-CWEs-link-"+i+"\"";
 		pos=sb.indexOf(finder,pos+1)+finder.length()+26;
 		if (pos>=previous_pos && pos>=10000) {
-	    	res=sb.substring(pos,sb.indexOf("\" target=",pos));
-	    	CWEs.add(res);
+			finder2="NVD-CWE-Other";                               //Il s'agit d'une CWE qui n'a pas correctement été explicité sur le site du NIST (notamment pour des CVEs anciennes)
+			pos2=sb.indexOf(finder2,pos-finder.length()-26);
+			if (pos2<=10000) {                                     //N'étant pas référencée, on considère qu'elle ne possède pas de Technical impact selon le NIST
+				res=sb.substring(pos,sb.indexOf("\" target=",pos));
+		    	CWEs.add(res);
+			} else {
+				res="No CWE";CWEs.add(res);
+				break;
+			}
+	    	
 	    } else {
 	    	res="No CWE";
 	    	CWEs.add(res);
@@ -163,7 +172,6 @@ public class TechnicalImpact {
 	
 	public static StringBuilder connexion(String url) { //fonction permettant de r�cup�rer le code html de la page web associ� � l'url donn�e en entr�e
 		try {
-			
 			URL obj = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
 			conn.setReadTimeout(5000);
@@ -215,7 +223,8 @@ public class TechnicalImpact {
 			    }
 			    return sb;
 		} catch (Exception e) {
-			System.out.println("No connexion to the domain ");
+		//	System.out.println(e);
+			System.out.println("No connexion to the domain");
 			return null;
 		}
 	}
