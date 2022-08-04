@@ -11,17 +11,12 @@ import java.util.List;
 public class TechnicalImpact {
 	public List<String> Consequencies;
 	
-	public TechnicalImpact(String[] args) {
-		if(args.length==3) {    //si on ne fournit pas les 3 string 'CVE Year Number', le code renvoie une erreur
-			String cve=args[0]+"-"+args[1]+"-"+args[2];
+	public TechnicalImpact(String cve) {
 			this.Consequencies=CVE(cve);
-				} else {
-					System.out.println("You need to provide the CVE like: CVE Year Number");
-				}
 			}
 		
 	public static void main(String[] args) {
-		TechnicalImpact impact= new TechnicalImpact(args);
+		TechnicalImpact impact= new TechnicalImpact(args[0]);
 		display(impact.Consequencies);
 	}
 	
@@ -39,16 +34,25 @@ public class TechnicalImpact {
 	int i=0;
 	int pos=0;
 	int previous_pos=0;
+	int pos2=0;
 	String res="";
-	String finder;
+	String finder,finder2;
 	List<String> CWEs = new ArrayList<>();
 	while (res!="No CWE") {
 		previous_pos=pos;
 		finder="\""+ "vuln-CWEs-link-"+i+"\"";
 		pos=sb.indexOf(finder,pos+1)+finder.length()+26;
 		if (pos>=previous_pos && pos>=10000) {
-	    	res=sb.substring(pos,sb.indexOf("\" target=",pos));
-	    	CWEs.add(res);
+			finder2="NVD-CWE-Other";                               //Il s'agit d'une CWE qui n'a pas correctement été explicité sur le site du NIST (notamment pour des CVEs anciennes)
+			pos2=sb.indexOf(finder2,pos-finder.length()-26);
+			if (pos2<=10000) {                                     //N'étant pas référencée, on considère qu'elle ne possède pas de Technical impact selon le NIST
+				res=sb.substring(pos,sb.indexOf("\" target=",pos));
+		    	CWEs.add(res);
+			} else {
+				res="No CWE";CWEs.add(res);
+				break;
+			}
+	    	
 	    } else {
 	    	res="No CWE";
 	    	CWEs.add(res);
@@ -60,27 +64,38 @@ public class TechnicalImpact {
 }
 	
 	public static List<String> getConsequencies(StringBuilder sb) {     //fonction permettant de r�cup�rer les cons�quences d'une CWE � partir du code html associ� � la description de la CWE par le site web du NIST
-		int pos=0;
-		int previous_pos=0;
-		String res="";
-		String finder;
+		int pos;
+		int previous_pos;
+		String res;
+		String[] finder={"nowrap>Availability<br></td>","nowrap>Availability<br>Other<br></td>","nowrap>Integrity<br></td>","nowrap>Integrity<br>Other<br></td>","nowrap>Confidentiality<br></td>","nowrap>Confidentiality<br>Other<br></td>","nowrap>Integrity<br>Confidentiality<br></td>","nowrap>Integrity<br>Confidentiality<br>Other<br></td>","nowrap>Confidentiality<br>Integrity<br></td>","nowrap>Confidentiality<br>Integrity<br>Other<br></td>","nowrap>Availability<br>Confidentiality<br></td>","nowrap>Availability<br>Confidentiality<br>Other<br></td>","nowrap>Availability<br>Integrity<br></td>","nowrap>Availability<br>Integrity<br>Other<br></td>","nowrap>Confidentiality<br>Availability<br></td>","nowrap>Confidentiality<br>Availability<br>Other<br></td>","nowrap>Integrity<br>Availability<br></td>","nowrap>Integrity<br>Availability<br>Other<br></td>","nowrap>Integrity<br>Confidentiality<br>Availability<br></td>","nowrap>Integrity<br>Confidentiality<br>Availability<br>Other<br></td>"};
+		String[] values= {"Availability","Availability","Integrity","Integrity","Confidentiality","Confidentiality","Integrity;Confidentiality","Integrity;Confidentiality","Confidentiality;Integrity","Confidentiality;Integrity","Availability;Confidentiality","Availability;Confidentiality","Availability;Integrity","Availability;Integrity","Confidentiality;Availability","Confidentiality;Availability","Integrity;Availability","Integrity;Availability","Integrity;Confidentiality;Availability","Integrity;Confidentiality;Availability"};
 		String[] results;
 		List<String> Consequencies = new ArrayList<>();
-		while (! res.equals("No Consequency")) {
-			previous_pos=pos;
-			finder="Technical Impact:</span><i>";
-			pos=sb.indexOf(finder,pos+1)+finder.length()+1;
-			if (pos>=previous_pos && pos>=10000) {
-		    	res=sb.substring(pos,sb.indexOf("</i>",pos));
-		    	results=res.split("; ");
-		    	for (int i=0;i<results.length;i++) {
-		    		res=TypeImpact(results[i]);
-		    		Consequencies.add(res);
-		    	}
-		    } else {
-		    	res="No Consequency";
-		    	break;
-		    }
+		for (int i=0; i<finder.length;i++) {
+			pos=0;
+			previous_pos=0;
+			res="";
+			while (! res.equals("No Consequency")) {
+				previous_pos=pos;
+				try {
+					pos=sb.indexOf(finder[i],pos+1);
+				} catch(Exception e) {
+					Consequencies.add("No Consequency");
+					return Consequencies;
+				}
+				if (pos>=previous_pos && pos>=1000) {
+					results=values[i].split(";");
+					for (int j=0;j<results.length;j++) {
+						if (Consequencies.contains(results[j])==false) {
+							res=results[j];
+							Consequencies.add(results[j]);
+						}
+					}
+			    } else {
+			    	res="No Consequency";
+			    	break;
+			    }
+			}
 		}
 		return Consequencies;
 	}
@@ -157,7 +172,6 @@ public class TechnicalImpact {
 	
 	public static StringBuilder connexion(String url) { //fonction permettant de r�cup�rer le code html de la page web associ� � l'url donn�e en entr�e
 		try {
-			
 			URL obj = new URL(url);
 			HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
 			conn.setReadTimeout(5000);
@@ -209,7 +223,8 @@ public class TechnicalImpact {
 			    }
 			    return sb;
 		} catch (Exception e) {
-			e.printStackTrace();
+		//	System.out.println(e);
+			System.out.println("No connexion to the domain");
 			return null;
 		}
 	}
