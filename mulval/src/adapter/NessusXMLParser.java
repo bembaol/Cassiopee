@@ -39,75 +39,101 @@ public class NessusXMLParser {
 		organization.put("name", "TSP");
 		organization.put("description", "École d'ingénieur du numérique");
 		
+		//Chaîne qui va contenir l'adresse IP de chaque machine du réseau
+		String ip;
+		
+		//Nous sert à régler le problème de virgule pour le fichier json
+		boolean firstItem;
+		
 		List<String> equipments = new ArrayList<String>();
 		try {
-			FileWriter json = new FileWriter("countermeasure.json");
+			FileWriter json = new FileWriter("countermeasures.json");
+			json.write("{\n");
 			
 			SAXReader saxReader = new SAXReader();
 			FileWriter fr = new FileWriter("vulInfo.txt");
 			Document document = saxReader.read(nessusReport);
+			
+			List<?> report = document.selectNodes("/*[local-name(.)='NessusClientData_v2']/*[local-name(.)='Report']");
+			Iterator<?> reportItrt = report.iterator();
+			String reportName = "";
+			while (reportItrt.hasNext()) {
+				Element rep = (Element) reportItrt.next();
+				reportName = rep.attribute(0).getText();
+			}
+			System.out.println("Network: " + reportName);
+			
 			// Each entry is indexed by one cve_id
-			List reportHost = document.selectNodes(
+			List<?> reportHost = document.selectNodes(
 					"/*[local-name(.)='NessusClientData_v2']/*[local-name(.)='Report']/*[local-name(.)='ReportHost']");
 			
-			Iterator reportHostItrt = reportHost.iterator();
+			Iterator<?> reportHostItrt = reportHost.iterator();
+			
 			while (reportHostItrt.hasNext()) {
 				Element host = (Element) reportHostItrt.next();
+				
+				ip = host.attribute(0).getText();
+				json.write("\"IP\": \"" + ip + "\",\n");
+				json.write("\"CVEs\":[\n");
+				
+				firstItem = true;
+				
 				// Element iterator of each entry
-				Iterator ei = host.elementIterator();
+				Iterator<?> ei = host.elementIterator();
 				// Put all of the subelements' names(subelement of entry) to an array list(subele)
 				while (ei.hasNext()) {
-					// Va nous servir pour distinguer les cas où une vulnérabilité n'a pas d'ID CVE associé
-					boolean hasCve = false;
 					
 					Element sube = (Element) ei.next();
 					if(!sube.getName().equals("ReportItem"))
 						continue;
 					// A list of elements for each entry
 					ArrayList<String> subele = new ArrayList<String>();
-					Iterator reportItemItrt = sube.elementIterator();
+					Iterator<?> reportItemItrt = sube.elementIterator();
 					while(reportItemItrt.hasNext()) {
 						Element reportItemElement = (Element) reportItemItrt.next();
 						subele.add(reportItemElement.getName());
 					}
-					Iterator itr;
-					if(subele.size() == 0 || (!subele.contains("cve") && !subele.contains("cvss3_vector")))
+					
+					//On itère sur le vecteur cvss car il est présent pour chaque vuln (contrairement à l'id cve)
+					Iterator<?> itr;
+					if(subele.size() == 0 || (!subele.contains("cve") && !subele.contains("cvss3_vector") && !subele.contains("cvss_vector"))) {
 						continue;
-					else if (!subele.contains("cve") && subele.contains("cvss3_vector")) {
-						itr = sube.elementIterator("cvss3_vector");
-					}
-					else {
-						itr= sube.elementIterator("cve");
-						hasCve = true;
-					}
+					} 
+					itr = sube.elementIterator("cvss_vector");
+					
 					while(itr.hasNext()) {
+						//Nouvelle vuln à ajouter dans le json
+						if (firstItem) {
+							json.write("{\n");
+							firstItem = false;
+						} else {
+							json.write(",\n{");
+						}
 						
-						System.out.println("host name is: " + host.attribute(0).getText());
 						
 						//On ajoute Host
-						fr.write(host.attribute(0).getText() + "\n");
+						System.out.println("host name is: " + ip);
+						fr.write(ip + "\n");;
+						
+						Element cvss;
+						cvss = (Element) itr.next();
 						
 						//On ajoute CVE
 						Element cve = null;
-						if (hasCve) {
-							cve = (Element) itr.next();
+						if (subele.contains("cve")) {
+							cve = (Element) sube.elementIterator("cve").next();
 							System.out.println(cve.getText());
 							fr.write(cve.getText() + "\n");
+							json.write("\"CVE_ID\": \"" + cve.getText() + "\",\n");
 						} else {
 							System.out.println("No CVE ID associated");
 							fr.write("CVE-XXXX-XXXX\n");
+							json.write("\"CVE_ID\": \"CVE-XXXX-XXXX\",\n");
 						}
 						
 						//On récupère le vecteur CVSS 
-						Element cvss;
 						if (subele.contains("cvss3_vector")) {
-							if (hasCve) {
-								cvss = (Element) sube.elementIterator("cvss3_vector").next();
-							} else {
-								cvss = (Element) itr.next();
-							}
-						} else {
-							cvss = (Element) sube.elementIterator("cvss_vector").next();
+							cvss = (Element) sube.elementIterator("cvss3_vector").next();
 						}
 						HashMap<String, String> vuln = parseCvss(cvss.getText());
 						
@@ -130,6 +156,7 @@ public class NessusXMLParser {
 						
 						if (!products.equals("")) {
 							vuln.put("products", products);
+							json.write("\"Product(s)\": \"" + products + "\",\n");
 						}
 						
 						//Récupérer la séverité 
@@ -140,6 +167,7 @@ public class NessusXMLParser {
 							severity = (Element) sube.elementIterator("cvss_base_score").next();
 						}
 						vuln.put("severity", severity.getText());
+						json.write("\"CVSS\": \"" + severity.getText() + "\",\n");
 						
 						//On récupère la solution
 						String solution;
@@ -149,9 +177,8 @@ public class NessusXMLParser {
 							solution = "no solution available";
 						}
 						//vuln.put("solution", solution);
-						
-						//On écrit le fichier JSON avec la solution
-						JSONwriter(json, host.attribute(0).getText(), products, cve.getText(), severity.getText(), solution);
+						solution = solution.replaceAll("\n", " ");
+						json.write("\"Contremesure\": \"" + solution + "\"\n");
 						
 						System.out.println(vuln.toString());
 						fr.write(vuln.toString() + "\n");
@@ -161,10 +188,19 @@ public class NessusXMLParser {
 						System.out.println("protocol is: " + sube.attribute(2).getText());
 						fr.write(sube.attribute(2).getText() + "\n");
 						System.out.println();
+						
 					}
+					json.write("}");
+				}
+				if (reportHostItrt.hasNext()) {
+					json.write("],\n");
+				} else {
+					json.write("]\n");
 				}
 			}
 			fr.close();
+			json.write("}\n");
+			json.close();
 		} 
 		catch (DocumentException e) {
 			e.printStackTrace();
@@ -400,27 +436,5 @@ public class NessusXMLParser {
 			e.printStackTrace();
 		}
 	}
-	
-	public static void JSONwriter(FileWriter fr, String ip, String product, String cve, String cvss3_base_score, String countermeasure) {
-		try {
-			fr.write("{\n");
-			fr.write("IP:" + ip + "\n");
-			fr.write("Product:" + product + "\n");
-			fr.write("CVEs:[\n");
-			fr.write("{\n");
-			fr.write("CVE_ID:" + cve + "\n");
-			fr.write("CVSS:" + cvss3_base_score + "\n");
-			fr.write("Contremesure:" + countermeasure + "\n");
-			fr.write("}\n");
-			fr.write("]\n");
-			fr.write("}\n");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
-	
-	
 
 }
