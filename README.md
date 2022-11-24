@@ -2,14 +2,14 @@
 
 Objectif: Générer automatiquement l'input pour Mulval à partir d'un scan Nessus
 
-Lien vers le projet Mulval d'origine: https://github.com/risksense/mulval
+Mulval est un outil de d'analyse de vulnérabilité développé par la start-up Risksense, qui a depuis été racheté par Ivanti. Voici le lien vers le GitHub du projet: https://github.com/risksense/mulval
 
 Dans ce dépôt vont se trouver des programmes venant du dépôt Mulval ci-dessus et qui ont été modifiés.
 
 #### Modifications de la variable PATH
 
 --> Création de la variable d'environnement MULVALROOT
-export MULVALROOT=chemin/vers/le/dépôt/github/mulval		//Exemple : /home/bemba/Cours/Cassiopee/Cassiopee/mulval
+export MULVALROOT=chemin/vers/le/dépôt/github/mulval	
 
 --> Ajout des chemins utiles à la variable PATH
 export PATH=$PATH:$MULVALROOT/bin:$MULVALROOT/utils
