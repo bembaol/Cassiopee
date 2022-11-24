@@ -1,4 +1,4 @@
-# Automatic attack graph generator
+# Générateur de graphe d'attaque
 
 Objectif: Générer automatiquement l'input pour Mulval à partir d'un scan Nessus
 
