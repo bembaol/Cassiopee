@@ -1,4 +1,4 @@
-# Cassiopee
+# Automatic attack graph generator
 
 Objectif: Générer automatiquement l'input pour Mulval à partir d'un scan Nessus
 
